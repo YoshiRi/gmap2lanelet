@@ -29,6 +29,11 @@ gmap2lanelet run --source live \
 
 # compare failure modes across many AOIs
 gmap2lanelet batch --image-ids 93,162,48,10,100,151,89,38,124,160 --out outputs/batch
+
+# add the semantics that overhead imagery cannot see: traffic lights, the stop
+# lines they govern, the lanes behind them, and painted lane arrows
+gmap2lanelet street --log 20dd185d-b4eb-3024-a17a-b4e5d8b15b65 --city DTW \
+    --out outputs/street_detroit
 ```
 
 Each run writes `lanelet2_map.osm`, `viewer.html` (self-contained, offline),
@@ -46,24 +51,28 @@ whose interior connectivity is inferred rather than observed.*
 
 ## The idea
 
-The two public sources fail in *opposite* ways, which is what makes fusing them
+The public sources fail in *opposite* ways, which is what makes fusing them
 worthwhile:
 
-| | OSM / map data | Aerial imagery |
-|---|---|---|
-| connectivity, one-way, road class | **reliable** | absent |
-| lane count | present but often nominal | measurable where paint is visible |
-| geometry (position, width, shape) | 1–2 m off, routinely worse | **reliable** |
-| lane-level turn permissions | essentially never tagged | not visible at 0.3 m/px |
+| | OSM / map data | Aerial imagery | Street-level imagery |
+|---|---|---|---|
+| connectivity, one-way, road class | **reliable** | absent | absent |
+| lane count | present but often nominal | measurable where paint is visible | measurable, but only where driven |
+| geometry (position, width, shape) | 1–2 m off, routinely worse | **reliable** | high resolution, corridor only |
+| lane-level turn permissions | essentially never tagged | not visible at 0.3 m/px | **readable from paint** |
+| traffic lights, signs, stop lines | not mapped to lanes | invisible | **the only source** |
 
-So the pipeline never asks the imagery what connects to what, and never asks the
-map where anything is:
+So the pipeline never asks the imagery what connects to what, never asks the map
+where anything is, and never asks the overhead view what a lane *means*:
 
 ```
-OSM / map data ──► topology prior ──┐
-                                    ├──► lane graph ──► Lanelet2
-aerial imagery ──► geometry evidence┘         │
-                                              └──► review items (failure analysis)
+OSM / map data ────► topology prior ──┐
+                                      ├──► lane graph ──┐
+aerial imagery ────► geometry evidence┘                 ├──► Lanelet2
+                                                        │    (+ regulatory
+street imagery ────► semantic evidence ─────────────────┘      elements)
+                     (signals, stop lines, arrows)      │
+                                                        └──► review items
 ```
 
 The mechanism that makes this work is a **road-aligned frame**. Every prior edge
@@ -85,9 +94,21 @@ its position can be, and is, wrong.
 | lane structure | `fusion/lanes.py` | lane boundaries from markings, lane count arbitrated against OSM |
 | intersections | `fusion/intersection.py` | trim approaches, infer turn connectivity, generate turn lanes |
 | assembly | `fusion/builder.py` | stitch lanes into a connected graph |
-| export | `export/lanelet2_osm.py` | Lanelet2 OSM-XML with provenance tags |
+| export | `export/lanelet2_osm.py` | Lanelet2 OSM-XML with provenance tags and regulatory elements |
 | QA | `qa/` | failure detection, review items, Lanelet2 round-trip validation |
 | viz | `viz/` | static overlays + a self-contained interactive viewer |
+
+Street-level stage (phase 2), which consumes the lane graph above:
+
+| stage | module | what it does |
+|---|---|---|
+| posed imagery | `street/sources/` | frames + calibrated poses + a ground-height surface (Argoverse 2; the interface takes any posed source) |
+| detection | `street/detect/` | signal heads and signs per frame (off-the-shelf YOLOv8, no fine-tuning) |
+| geolocation | `street/semantics/landmarks.py` | seed-and-grow data association, multi-view triangulation with RANSAC, per-object σ |
+| rectification | `street/geo/ipm.py` | inverse perspective mapping onto the real ground surface → a 5 cm/px overhead mosaic |
+| stop lines, arrows | `street/semantics/` | transverse-bar detection and geometric arrow classification in the road-aligned frame |
+| association | `street/semantics/associate.py` | signal → approach → stop line → controlled lanelets, decided in the approach frame using facing |
+| evaluation | `street/evaluate.py` | scores against a held-back HD map |
 
 **Every element carries `source` and `confidence`.** `Source.OSM` means the map
 decided it, `Source.IMAGE` means the imagery measured it, `Source.FUSED` means
@@ -126,9 +147,40 @@ a rule, not a measurement).
 Full analysis, including every failure mode with worked examples:
 **[docs/RESULTS.md](docs/RESULTS.md)**.
 
+### Phase 2 — street-level semantics
+
+One Detroit log (Argoverse 2, 133 posed frames), with the HD map degraded to
+OSM information content as the input prior and held back as ground truth:
+
+| | |
+|---|---|
+| signal heads located in 3-D | **32**, median 22 views, median σ 2.24 m |
+| recovered height distribution | median 4.79 m; a mast-arm mode near 5 m and a pedestrian mode near 2.7 m |
+| signals tied to stop line + controlled lanelets | **17 (53 %)**, governing 121 lanelets |
+| stop bars observed | 6 of 14 approaches, **2.48 m** median offset from the crosswalk they precede |
+| Lanelet2 export | 17 `regulatory_element` relations, 0 parse errors, all 121 links resolve to a stop line |
+| painted arrows vs the HD map's real connectivity | precision **1.00**, recall 0.53 |
+
+The arrow result is the interesting one: **paint never claims an illegal
+manoeuvre but reports only about half the legal ones**, so it is treated as
+evidence that a manoeuvre is permitted — not that the others are forbidden. The
+union of paint and the phase-1 convention beats either alone (IoU 0.83 vs 0.77
+and 0.53).
+
+The dominant cause of an unassigned signal is not recognition: 7 of 15 are
+unassigned because their junction arm was never driven, so the geometry stage
+produced no lanes to attach them to. Street imagery is a *linear* sample of a
+*planar* problem.
+
+**[docs/STREET_RESULTS.md](docs/STREET_RESULTS.md)** — full analysis, including
+what cannot be scored at all (no open dataset with posed street imagery
+annotates traffic lights, so no positional accuracy figure is reported, only the
+evidence).
+
 ## Documentation
 
 - [docs/RESULTS.md](docs/RESULTS.md) — evaluation, failure catalogue, what to fix next
+- [docs/STREET_RESULTS.md](docs/STREET_RESULTS.md) — street-level semantics: signals, stop lines, arrows
 - [docs/DESIGN.md](docs/DESIGN.md) — architecture and algorithms
 - [docs/PRIOR_WORK.md](docs/PRIOR_WORK.md) — DeepAerialMapper, SIO-Mapper, Lanelet2 and what was reused
 - [docs/CALIBRATION.md](docs/CALIBRATION.md) — how the two detection thresholds were set
@@ -137,8 +189,11 @@ Full analysis, including every failure mode with worked examples:
 
 ```bash
 pip install -e ".[lanelet2,dev]"
-pytest                       # 26 tests, no network required
+pytest                       # 50 tests, no network required
 ```
+
+The `street` subcommand additionally needs `ultralytics` (detector) and
+`opencv-python`; both are in the `street` extra.
 
 The `lanelet2` extra installs the official Lanelet2 Python bindings, which the
 QA stage uses to *actually load* the exported map and build a routing graph from
@@ -155,17 +210,28 @@ it was unavailable.
 - **Aerial imagery** for `--source live` is whatever tile service you pass;
   no endpoint is hard-coded, because using one would imply a licence you may not
   have.
+- **Argoverse 2 Sensor Dataset** — CC BY-NC-SA 4.0 (Argo AI), anonymously
+  downloadable from `s3://argoverse`. Used for the street-level stage because it
+  ships accurate camera poses, calibration and a ground-height surface, plus an
+  HD map that can be held back as ground truth. **Non-commercial**: it is the
+  evaluation harness, not a production input.
+- **YOLOv8** weights from the Ultralytics GitHub release assets — AGPL-3.0.
+  Used unmodified for detection; swap `street/detect/` for any other detector.
 
 ## Extending
 
 The PoC was built so the planned next steps do not require restructuring it:
 
-- **street-level imagery** (signs, signals, arrows) → a new evidence source
-  feeding `Source.IMAGE` attributes onto existing lanes; the lane graph already
-  has stable ids and per-element provenance to attach them to.
+- **more street-level sources** → `StreetImagerySource` needs only posed frames,
+  so Mapillary, KartaView or a dashcam with GNSS/INS drop in; `GroundSurface`
+  takes any raster DEM and `Detector` any box detector.
+- **signal aspect / sign classification** → attaches to the existing `Landmark`
+  objects and immediately inherits association, export and review. This is the
+  single highest-value addition: it is what separates a left-turn signal from a
+  through signal, which is the main thing the current stage cannot decide.
 - **3-D / depth** → `GeoRaster` and the local metric frame are already
   z-agnostic; `PipelineConfig.elevation` is the single place elevation is
-  assumed flat.
+  assumed flat, and the street stage already carries real per-object heights.
 - **Gaussian splatting / photorealistic environments** → consumes the same
   local metric frame and AOI definition.
 - **OpenDRIVE overlay** → a second writer next to `export/lanelet2_osm.py`; the

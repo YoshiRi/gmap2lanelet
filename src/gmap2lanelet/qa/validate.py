@@ -41,6 +41,30 @@ def validate_lanelet2(path: str | Path, lat0: float, lon0: float) -> dict:
     out["points"] = len(lmap.pointLayer)
     out["linestrings"] = len(lmap.lineStringLayer)
     out["lanelets"] = len(lmap.laneletLayer)
+    out["regulatory_elements"] = len(lmap.regulatoryElementLayer)
+
+    # A regulatory element that parses but that no lanelet references governs
+    # nothing.  Counting the round trip -- lanelet -> regelem -> stop line -- is
+    # the only way to know the semantic layer actually landed in the map.
+    try:
+        n_tl, n_ref_line, governed = 0, 0, set()
+        for ll in lmap.laneletLayer:
+            for re in ll.trafficLights():
+                n_tl += 1
+                governed.add(int(re.id))
+                try:
+                    if re.stopLine is not None and len(re.stopLine) >= 2:
+                        n_ref_line += 1
+                except Exception:                              # noqa: BLE001, S110
+                    pass
+        out["traffic_lights"] = {
+            "regulatory_elements": len(lmap.regulatoryElementLayer),
+            "lanelet_links": n_tl,
+            "distinct_governing": len(governed),
+            "with_stop_line": n_ref_line,
+        }
+    except Exception as exc:                                  # noqa: BLE001
+        out["traffic_light_check_error"] = str(exc)
 
     try:
         from lanelet2.routing import RoutingGraph

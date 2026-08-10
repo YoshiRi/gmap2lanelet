@@ -23,6 +23,7 @@ from .cache import post_form
 log = logging.getLogger(__name__)
 
 DEFAULT_ENDPOINT = "https://overpass-api.de/api/interpreter"
+USER_AGENT = "gmap2lanelet/0.1 (research PoC)"
 
 # Road classes we treat as drivable.  Deliberately excludes footway/cycleway.
 DRIVABLE = (
@@ -52,7 +53,8 @@ class OverpassSource:
         )
 
     def fetch(self, aoi: AOI) -> PriorData:
-        raw = post_form(self.endpoint, {"data": self.query(aoi)}, use_cache=self.use_cache)
+        raw = post_form(self.endpoint, {"data": self.query(aoi)},
+                        headers={"User-Agent": USER_AGENT}, use_cache=self.use_cache)
         doc = json.loads(raw)
         ways: list[PriorWay] = []
         for el in doc.get("elements", []):

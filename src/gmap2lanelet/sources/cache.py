@@ -22,7 +22,7 @@ def cache_dir() -> Path:
 
 def cached_path(url: str, suffix: str = "") -> Path:
     h = hashlib.sha1(url.encode()).hexdigest()[:16]
-    stem = Path(url.split("?")[0]).name or "download"
+    stem = (Path(url.split("?")[0]).name or "download")[:80]
     return cache_dir() / f"{h}_{stem}{suffix}"
 
 
@@ -51,7 +51,7 @@ def fetch_bytes(url: str, *, timeout: int = 120, retries: int = 4,
 
 
 def post_form(url: str, data: dict, *, timeout: int = 180, retries: int = 4,
-              use_cache: bool = True) -> bytes:
+              headers: dict | None = None, use_cache: bool = True) -> bytes:
     """POST a form (Overpass) with caching keyed on url+body."""
     key = url + "|" + repr(sorted(data.items()))
     p = cached_path(key, ".cache")
@@ -61,7 +61,7 @@ def post_form(url: str, data: dict, *, timeout: int = 180, retries: int = 4,
     last: Exception | None = None
     for attempt in range(retries):
         try:
-            r = requests.post(url, data=data, timeout=timeout)
+            r = requests.post(url, data=data, timeout=timeout, headers=headers or {})
             r.raise_for_status()
             if use_cache:
                 p.write_bytes(r.content)

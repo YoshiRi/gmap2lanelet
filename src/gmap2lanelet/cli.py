@@ -11,6 +11,11 @@
 
     # batch several AOIs and compare failure modes
     gmap2lanelet batch --image-ids 93,162,48,10,100 --out outputs/batch
+
+    # street-level semantics: traffic lights, stop lines, lane arrows, and a
+    # Lanelet2 map with regulatory elements, scored against a held-back HD map
+    gmap2lanelet street --log 20dd185d-b4eb-3024-a17a-b4e5d8b15b65 --city DTW \\
+        --out outputs/street_detroit
 """
 
 from __future__ import annotations
@@ -85,6 +90,32 @@ def cmd_run(args) -> int:
     return 0
 
 
+def cmd_street(args) -> int:
+    from .street.experiment import run_av2_experiment
+
+    summary = run_av2_experiment(
+        args.log, args.city, out_dir=args.out, stride=args.stride,
+        max_frames=args.max_frames, bev_resolution=args.bev_resolution,
+        lanes_tag=args.lanes_tag, weights=args.weights, imgsz=args.imgsz,
+        cfg=_config(args), make_visuals=not args.no_visuals)
+    print(json.dumps({k: v for k, v in summary.items() if k != "evaluation"},
+                     indent=1, default=str))
+    print(json.dumps(_eval_headline(summary["evaluation"]), indent=1, default=str))
+    return 0
+
+
+def _eval_headline(e: dict) -> dict:
+    return {
+        "lane_geometry_median_m": e.get("lane_geometry", {}).get("median_lateral_error_m"),
+        "lane_count_within_1": e.get("lane_count", {}).get("within_1"),
+        "turn_iou_inferred": e.get("turn_semantics", {}).get("inferred_mean_iou"),
+        "turn_iou_observed": e.get("turn_semantics", {}).get("observed_mean_iou"),
+        "traffic_lights": e.get("traffic_lights", {}).get("traffic_lights"),
+        "traffic_light_assignment_rate": e.get("traffic_lights", {}).get("assignment_rate"),
+        "stop_line_median_offset_m": e.get("stop_lines", {}).get("median_offset_m"),
+    }
+
+
 def cmd_batch(args) -> int:
     from .pipeline import run
     from .sources.spacenet import SpaceNetSource
@@ -157,6 +188,22 @@ def main(argv: list[str] | None = None) -> int:
     r.add_argument("--osm-file", help="use a local .osm extract instead of Overpass")
     _add_common(r)
     r.set_defaults(func=cmd_run)
+
+    s = sub.add_parser("street", help="add street-level semantics (signals, stop lines, "
+                                      "arrows) on an Argoverse 2 log")
+    s.add_argument("--log", default="20dd185d-b4eb-3024-a17a-b4e5d8b15b65",
+                   help="Argoverse 2 sensor log id")
+    s.add_argument("--city", default="DTW", help="AV2 city code (DTW, ATX, MIA, PIT, PAO, WDC)")
+    s.add_argument("--stride", type=int, default=3, help="use every Nth frame")
+    s.add_argument("--max-frames", type=int, default=140)
+    s.add_argument("--bev-resolution", type=float, default=0.05,
+                   help="metres per pixel of the rectified overhead mosaic")
+    s.add_argument("--lanes-tag", choices=["none", "class", "true"], default="none",
+                   help="how much lane-count information the prior is allowed to carry")
+    s.add_argument("--weights", default="yolov8m.pt")
+    s.add_argument("--imgsz", type=int, default=1280)
+    _add_common(s)
+    s.set_defaults(func=cmd_street)
 
     b = sub.add_parser("batch", help="run several SpaceNet AOIs and compare")
     b.add_argument("--aoi-name", default="AOI_2_Vegas")

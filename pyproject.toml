@@ -29,6 +29,10 @@ dependencies = [
 lanelet2 = ["lanelet2>=1.2"]
 # Optional pretrained-segmentation observation backend.
 torch = ["torch>=2.0", "segmentation-models-pytorch>=0.3"]
+# Street-level stage: object detection in posed frames, and the rasterisation
+# used by the inverse-perspective mosaic.  The geometry, association, export and
+# evaluation code needs neither -- only `gmap2lanelet street` does.
+street = ["ultralytics>=8.3", "opencv-python>=4.8", "boto3>=1.28"]
 dev = ["pytest>=7.4"]
 
 [project.scripts]

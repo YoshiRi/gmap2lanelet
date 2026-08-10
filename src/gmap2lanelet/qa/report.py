@@ -19,7 +19,7 @@ def write_report(result, path: str | Path) -> Path:
              f"{result.aoi.east:.6f}, {result.aoi.north:.6f}` (WGS84)\n")
 
     L.append("## Inputs\n")
-    L.append(f"| | |\n|---|---|")
+    L.append("| | |\n|---|---|")
     L.append(f"| imagery | {s['imagery']['attribution']} |")
     L.append(f"| imagery size | {s['imagery']['size_px'][1]} x {s['imagery']['size_px'][0]} px "
              f"@ {s['imagery']['gsd']} m/px |")
@@ -34,7 +34,7 @@ def write_report(result, path: str | Path) -> Path:
 
     L.append("## Output\n")
     g = s["graph"]
-    L.append(f"| | |\n|---|---|")
+    L.append("| | |\n|---|---|")
     L.append(f"| lanes | {g['lanes']} ({g['road_lanes']} road + {g['turn_lanes']} turn) |")
     L.append(f"| lane length | {g['lane_km']} km |")
     L.append(f"| lane boundaries | {g['boundaries']} |")

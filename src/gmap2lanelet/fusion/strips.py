@@ -61,7 +61,7 @@ class LaneStrip:
         return _pose(self.center, at_start=False)
 
 
-def slice_group(strips: list["LaneStrip"], i0: int, i1: int) -> None:
+def slice_group(strips: list[LaneStrip], i0: int, i1: int) -> None:
     """Keep stations ``[i0, i1)`` for a whole group of strips.
 
     Lanes of one carriageway *share* their boundary objects (lane k's left edge

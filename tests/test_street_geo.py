@@ -12,8 +12,12 @@ import pytest
 
 from gmap2lanelet.street.geo.camera import Camera, Intrinsics, quat_to_rot, se3, se3_inv
 from gmap2lanelet.street.geo.ground import GroundSurface
-from gmap2lanelet.street.geo.triangulate import (closest_approach, perpendicular_distances,
-                                                 reprojection_errors, triangulate)
+from gmap2lanelet.street.geo.triangulate import (
+    closest_approach,
+    perpendicular_distances,
+    reprojection_errors,
+    triangulate,
+)
 
 
 def _cam(x: float, y: float, z: float = 1.5, yaw: float = 0.0) -> Camera:

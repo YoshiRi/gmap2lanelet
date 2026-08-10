@@ -1,9 +1,10 @@
 """Export, Lanelet2 validation and the end-to-end pipeline (no network)."""
 
+import importlib.util
 import xml.etree.ElementTree as ET
 
-import numpy as np
 import pytest
+from conftest import build_cross_scene
 
 from gmap2lanelet.config import PipelineConfig
 from gmap2lanelet.export.lanelet2_osm import write_lanelet2
@@ -13,9 +14,13 @@ from gmap2lanelet.pipeline import run
 from gmap2lanelet.prior.road_graph import build_road_prior
 from gmap2lanelet.qa.validate import validate_lanelet2
 
-from conftest import build_cross_scene
-
-lanelet2 = pytest.importorskip("lanelet2", reason="official Lanelet2 bindings not installed")
+# Only the two tests that *load* the map need the official bindings.  Gating the
+# whole module on them would silently drop the export-structure and end-to-end
+# tests on any machine without Lanelet2 installed -- which is most of them, and
+# which is exactly where a regression would go unnoticed.
+needs_lanelet2 = pytest.mark.skipif(
+    importlib.util.find_spec("lanelet2") is None,
+    reason="official Lanelet2 bindings not installed")
 
 
 @pytest.fixture(scope="module")
@@ -65,6 +70,7 @@ def test_export_structure(built):
         assert tags["one_way"] in {"yes", "no"}
 
 
+@needs_lanelet2
 def test_lanelet2_loads_without_errors(built):
     _, frame, path, _ = built
     rep = validate_lanelet2(path, frame.lat0, frame.lon0)
@@ -88,6 +94,7 @@ def test_adjacent_lanes_share_their_boundary(built):
     assert len(graph.boundaries) < 2 * len(graph.lanes)
 
 
+@needs_lanelet2
 def test_intersection_produces_routable_turns(tmp_path):
     aoi, frame, imagery, prior, _ = build_cross_scene()
     cfg = PipelineConfig()
@@ -127,7 +134,10 @@ def test_end_to_end_pipeline(tmp_path, scene):
              "review_items": "review_items.json", "report": "report.md",
              "summary": "summary.json"}[key]).exists()
 
-    assert res.validation["parsed"]
+    # the map is only *loaded* where the bindings exist; everything else about
+    # the run is checked either way
+    if res.validation.get("available"):
+        assert res.validation["parsed"]
     assert res.graph.stats()["road_lanes"] == truth["lanes"]
     # every lane carries provenance and a confidence
     for ln in res.graph.lanes.values():

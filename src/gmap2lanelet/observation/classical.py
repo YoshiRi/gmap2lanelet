@@ -302,6 +302,7 @@ def _vegetation(rgb: np.ndarray) -> np.ndarray:
 
 def _shadow(lum: np.ndarray, feats) -> np.ndarray:
     """Pixels much darker than the sampled pavement."""
-    ref = float(np.median(feats[:, 2])) if (feats.ndim == 2 and feats.shape[1] == 3) else float(np.median(lum))
+    has_chroma = feats.ndim == 2 and feats.shape[1] == 3
+    ref = float(np.median(feats[:, 2])) if has_chroma else float(np.median(lum))
     thr = max(0.35 * ref, 0.02)
     return np.clip((thr - lum) / max(thr, 1e-3), 0, 1)

@@ -72,7 +72,8 @@ class SpaceNetSource:
 
     @property
     def roads_url(self) -> str:
-        return f"{S3_ROOT}/{self.aoi_name}/geojson_roads/{self._stem}_geojson_roads_img{self.image_id}.geojson"
+        return (f"{S3_ROOT}/{self.aoi_name}/geojson_roads/"
+                f"{self._stem}_geojson_roads_img{self.image_id}.geojson")
 
     @property
     def speed_url(self) -> str:

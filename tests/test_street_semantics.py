@@ -18,12 +18,23 @@ from gmap2lanelet.export.lanelet2_osm import Lanelet2Writer
 from gmap2lanelet.geo import AOI, LocalFrame
 from gmap2lanelet.raster import GeoRaster
 from gmap2lanelet.street.semantics.arrows import find_arrows, merge_arrows
-from gmap2lanelet.street.semantics.associate import (TrafficLightAssociator, associate,
-                                                     build_approaches, build_stop_lines)
+from gmap2lanelet.street.semantics.associate import (
+    TrafficLightAssociator,
+    associate,
+    build_approaches,
+    build_stop_lines,
+)
 from gmap2lanelet.street.semantics.stopline import detect_stop_line
 from gmap2lanelet.street.types import Landmark, LandmarkKind
-from gmap2lanelet.types import (Boundary, Intersection, Lane, LaneGraph, MarkingType,
-                                Provenance, Source)
+from gmap2lanelet.types import (
+    Boundary,
+    Intersection,
+    Lane,
+    LaneGraph,
+    MarkingType,
+    Provenance,
+    Source,
+)
 
 LANE_W = 3.5
 ARMS = {"E": 0.0, "N": math.pi / 2, "W": math.pi, "S": -math.pi / 2}

@@ -1,8 +1,15 @@
 import numpy as np
 import pytest
 
-from gmap2lanelet.geo import (AOI, LocalFrame, hermite, offset_polyline, polyline_length,
-                              resample_polyline, simplify_polyline)
+from gmap2lanelet.geo import (
+    AOI,
+    LocalFrame,
+    hermite,
+    offset_polyline,
+    polyline_length,
+    resample_polyline,
+    simplify_polyline,
+)
 from gmap2lanelet.raster import GeoRaster
 
 

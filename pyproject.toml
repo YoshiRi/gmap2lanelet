@@ -13,7 +13,6 @@ dependencies = [
     "numpy>=1.24",
     "scipy>=1.10",
     "shapely>=2.0",
-    "networkx>=3.0",
     "pyproj>=3.5",
     "opencv-python-headless>=4.8",
     "scikit-image>=0.21",
@@ -32,8 +31,8 @@ torch = ["torch>=2.0", "segmentation-models-pytorch>=0.3"]
 # Street-level stage: object detection in posed frames, and the rasterisation
 # used by the inverse-perspective mosaic.  The geometry, association, export and
 # evaluation code needs neither -- only `gmap2lanelet street` does.
-street = ["ultralytics>=8.3", "opencv-python>=4.8", "boto3>=1.28"]
-dev = ["pytest>=7.4"]
+street = ["ultralytics>=8.3", "opencv-python>=4.8"]
+dev = ["pytest>=7.4", "ruff>=0.6"]
 
 [project.scripts]
 gmap2lanelet = "gmap2lanelet.cli:main"
@@ -43,3 +42,26 @@ where = ["src"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+# Deliberately narrow. The gate is here to catch things that are *wrong*
+# (undefined names, unused imports, shadowed builtins, mutable defaults), not to
+# enforce a house style -- a lint job that argues about formatting gets muted.
+select = ["E", "F", "W", "I", "UP", "B"]
+ignore = [
+    # `l` reads as a lane throughout this codebase and renaming ~40 sites to
+    # satisfy a font-legibility rule would obscure more than it clarifies.
+    "E741",
+    # zip() strict= is a real hazard in general, but every zip here pairs
+    # sequences built from the same source in the same pass.
+    "B905",
+]
+
+[tool.ruff.lint.per-file-ignores]
+# The viewer embeds JavaScript and CSS in an f-string; wrapping those lines to
+# 100 columns would break the thing it is trying to keep readable.
+"src/gmap2lanelet/viz/viewer.py" = ["E501"]

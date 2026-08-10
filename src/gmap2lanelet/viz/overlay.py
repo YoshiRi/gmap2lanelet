@@ -54,7 +54,6 @@ def render_overlay(raster: GeoRaster, prior: RoadPrior, graph: LaneGraph, path: 
                    show_centerlines: bool = True, show_intersections: bool = True,
                    dim: float = 0.35, scale: float = 1.0, title: str | None = None) -> Path:
     """The headline picture: imagery under, prior and result over."""
-    import matplotlib.pyplot as plt
     from matplotlib.patches import Circle
 
     fig, ax = _fig(raster, scale)

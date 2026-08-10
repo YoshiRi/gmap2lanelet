@@ -34,7 +34,7 @@ import numpy as np
 
 from ..config import PipelineConfig
 from ..geo import simplify_polyline
-from ..types import LaneGraph, MarkingType, Source
+from ..types import LaneGraph, MarkingType
 
 log = logging.getLogger(__name__)
 

@@ -53,9 +53,9 @@ class PipelineConfig:
     extra: dict = field(default_factory=dict)
 
     @staticmethod
-    def from_dict(d: dict | None) -> "PipelineConfig":
+    def from_dict(d: dict | None) -> PipelineConfig:
         d = dict(d or {})
-        known = {f for f in PipelineConfig.__dataclass_fields__}
+        known = set(PipelineConfig.__dataclass_fields__)
         extra = {k: v for k, v in d.items() if k not in known}
         cfg = PipelineConfig(**{k: v for k, v in d.items() if k in known})
         cfg.extra.update(extra)

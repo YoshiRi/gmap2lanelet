@@ -30,7 +30,6 @@ from dataclasses import dataclass
 import numpy as np
 
 from ..config import PipelineConfig
-from ..geo import polyline_length
 from ..observation.base import Evidence
 from ..prior import osm_tags
 from ..prior.road_graph import RoadPrior
@@ -317,8 +316,10 @@ def _stats(graph: LaneGraph, segments: dict, counts: dict, validation: dict | No
             s.value: frac(lambda x, s=s: x.count_source is s, sols)
             for s in (Source.OSM, Source.IMAGE, Source.FUSED)
         },
-        "carriageways_with_observed_markings": frac(lambda s: s.detail["observed_boundaries"] > 0, sols),
-        "carriageways_with_lane_count_conflict": frac(lambda s: "lane_count_conflict" in s.flags, sols),
+        "carriageways_with_observed_markings":
+            frac(lambda s: s.detail["observed_boundaries"] > 0, sols),
+        "carriageways_with_lane_count_conflict":
+            frac(lambda s: "lane_count_conflict" in s.flags, sols),
         "dual_carriageways_detected": sum(1 for s in sols if s.detail.get("dual_carriageway")),
         "boundaries_observed_fraction": frac(
             lambda b: b.marking in (MarkingType.SOLID, MarkingType.DASHED,

@@ -29,13 +29,13 @@ class GeoRaster:
 
     @staticmethod
     def from_bounds(data: np.ndarray, frame: LocalFrame, west: float, south: float,
-                    east: float, north: float, name: str = "raster") -> "GeoRaster":
+                    east: float, north: float, name: str = "raster") -> GeoRaster:
         h, w = data.shape[:2]
         (x_w, x_e), (y_s, y_n) = frame.to_local([west, east], [south, north])
         return GeoRaster(data, float(x_w), float(y_n), (float(x_e) - float(x_w)) / w,
                          (float(y_n) - float(y_s)) / h, name)
 
-    def like(self, data: np.ndarray, name: str) -> "GeoRaster":
+    def like(self, data: np.ndarray, name: str) -> GeoRaster:
         """A raster with the same georeferencing but different pixel content."""
         return GeoRaster(data, self.x0, self.y0, self.dx, self.dy, name)
 
@@ -58,10 +58,12 @@ class GeoRaster:
 
     def world_to_pixel(self, x, y) -> tuple[np.ndarray, np.ndarray]:
         """Metric -> fractional (col, row)."""
-        return (np.asarray(x, float) - self.x0) / self.dx, (self.y0 - np.asarray(y, float)) / self.dy
+        return ((np.asarray(x, float) - self.x0) / self.dx,
+                (self.y0 - np.asarray(y, float)) / self.dy)
 
     def pixel_to_world(self, col, row) -> tuple[np.ndarray, np.ndarray]:
-        return self.x0 + np.asarray(col, float) * self.dx, self.y0 - np.asarray(row, float) * self.dy
+        return (self.x0 + np.asarray(col, float) * self.dx,
+                self.y0 - np.asarray(row, float) * self.dy)
 
     def contains(self, x, y) -> np.ndarray:
         c, r = self.world_to_pixel(x, y)

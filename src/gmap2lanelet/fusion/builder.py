@@ -11,7 +11,7 @@ from ..config import PipelineConfig
 from ..geo import AOI, LocalFrame, angle_diff
 from ..observation.base import Evidence
 from ..prior.road_graph import RoadPrior
-from ..types import Boundary, Lane, LaneGraph, Provenance, Source
+from ..types import Boundary, Lane, LaneGraph, Provenance
 from .intersection import resolve_intersections
 from .segments import SegmentResult, build_all_segments
 from .strips import LaneStrip
@@ -113,7 +113,7 @@ def _connect_simple_nodes(prior: RoadPrior, strips: list[LaneStrip],
         leaving.setdefault(s.start_node, []).append(s)
 
     out: list[tuple[str, str]] = []
-    for nid, node in prior.nodes.items():
+    for nid in prior.nodes:
         if nid in clustered:
             continue
         ins = arriving.get(nid, [])

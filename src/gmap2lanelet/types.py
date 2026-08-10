@@ -167,6 +167,7 @@ class LaneGraph:
         road = [ln for ln in self.lanes.values() if ln.kind == "road"]
         turn = [ln for ln in self.lanes.values() if ln.kind == "turn"]
         import numpy as _np
+
         from .geo import polyline_length
 
         return {
@@ -175,8 +176,10 @@ class LaneGraph:
             "turn_lanes": len(turn),
             "boundaries": len(self.boundaries),
             "intersections": len(self.intersections),
-            "lane_km": round(sum(polyline_length(l.centerline) for l in self.lanes.values()) / 1000, 3),
-            "mean_confidence": round(float(_np.mean([l.confidence for l in self.lanes.values()])), 3)
+            "lane_km": round(
+                sum(polyline_length(l.centerline) for l in self.lanes.values()) / 1000, 3),
+            "mean_confidence": round(
+                float(_np.mean([l.confidence for l in self.lanes.values()])), 3)
             if self.lanes else 0.0,
         }
 

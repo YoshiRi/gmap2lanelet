@@ -1,5 +1,7 @@
 # gmap2lanelet
 
+[![CI](https://github.com/YoshiRi/gmap2lanelet/actions/workflows/ci.yml/badge.svg)](https://github.com/YoshiRi/gmap2lanelet/actions/workflows/ci.yml)
+
 **Lane-level vector maps from public map data + public aerial imagery, exported as Lanelet2.**
 
 A proof of concept for one hypothesis:
@@ -264,15 +266,32 @@ The whole point of the PoC. Every claim below is backed by a number in
 ```bash
 pip install -e ".[lanelet2,dev]"
 pytest                       # 50 tests, no network required
+ruff check src tests         # the lint gate CI runs
 ```
 
-The `street` subcommand additionally needs `ultralytics` (detector) and
-`opencv-python`; both are in the `street` extra.
+The `street` subcommand additionally needs `ultralytics` (detector); it is in
+the `street` extra. Everything else, including the street stage's geometry,
+association, export and evaluation code, runs on the base install.
 
 The `lanelet2` extra installs the official Lanelet2 Python bindings, which the
 QA stage uses to *actually load* the exported map and build a routing graph from
-it. Without it everything still runs; the validation section just reports that
-it was unavailable.
+it. Without it 48 of the 50 tests still run and the validation section reports
+that it was unavailable — but the question this project exists to answer stops
+being checked, so CI installs it.
+
+### CI
+
+[`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs on every push to
+`main` and every pull request:
+
+| job | what it checks |
+|---|---|
+| `lint` | `ruff check` — a deliberately narrow rule set (`E,F,W,I,UP,B`) that catches undefined names, unused imports, shadowed builtins and mutable defaults, not house style |
+| `test` (3.10 / 3.11 / 3.12) | the full suite **with** the Lanelet2 bindings, so the export really is loaded and routed; then that the CLI entry point and every subcommand parse; then that the street modules import **without** the `street` extra installed |
+
+The suite is offline by design — no S3, no Overpass, no model weights — so
+nothing is mocked and nothing is skipped. Anything that needs the network
+belongs in a manual run, not in CI.
 
 ## Data sources and licensing
 

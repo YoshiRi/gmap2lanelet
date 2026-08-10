@@ -35,8 +35,7 @@ import numpy as np
 
 from ...geo import angle_diff, heading
 from ...types import LaneGraph
-from ..types import (Landmark, LandmarkKind, SemanticLayer, StopLine,
-                     TrafficLightAssignment)
+from ..types import Landmark, LandmarkKind, SemanticLayer, StopLine, TrafficLightAssignment
 from .stopline import detect_stop_line, make_stop_line, stop_line_geometry
 
 log = logging.getLogger(__name__)

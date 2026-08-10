@@ -26,8 +26,12 @@ from collections import defaultdict
 import numpy as np
 
 from ...types import Provenance, Source
-from ..geo.triangulate import (closest_approach, perpendicular_distances,
-                               reprojection_errors, triangulate)
+from ..geo.triangulate import (
+    closest_approach,
+    perpendicular_distances,
+    reprojection_errors,
+    triangulate,
+)
 from ..types import Detection, Landmark, LandmarkKind
 
 log = logging.getLogger(__name__)
@@ -185,7 +189,8 @@ class LandmarkBuilder:
         cam_centres = np.array([by_frame[d.frame_id].camera.center for d in obs])
         to_cams = cam_centres - tri.point[None, :]
         mean_dir = to_cams[:, :2].mean(axis=0)
-        facing = float(np.arctan2(mean_dir[1], mean_dir[0])) if np.linalg.norm(mean_dir) > 1e-6 else None
+        facing = (float(np.arctan2(mean_dir[1], mean_dir[0]))
+                  if np.linalg.norm(mean_dir) > 1e-6 else None)
 
         lm = Landmark(
             id="", kind=kind, position=tri.point, detections=obs, n_views=len(obs),

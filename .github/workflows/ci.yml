@@ -1,0 +1,97 @@
+name: CI
+
+# The whole test suite is offline by design -- no S3, no Overpass, no model
+# weights -- so CI can be a plain matrix with nothing mocked and nothing skipped.
+# Anything that needs the network belongs in a manual run, not here.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  MPLBACKEND: Agg          # the viz modules must never try to open a window
+  PIP_DISABLE_PIP_VERSION_CHECK: "1"
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - run: pip install ruff
+      - name: ruff check
+        run: ruff check --output-format=github src tests
+
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # 3.10 is the floor declared in pyproject; 3.12 is the ceiling that is
+        # actually exercised. Nothing in the source needs more than 3.9.
+        python-version: ["3.10", "3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: Install
+        # The official Lanelet2 bindings publish manylinux wheels for every
+        # version in this matrix, so they are a hard requirement here rather
+        # than best-effort: without them the two tests that actually *load* the
+        # exported map skip, and "can it be converted to Lanelet2?" -- the
+        # question this project exists to answer -- stops being checked.
+        run: pip install -e ".[dev,lanelet2]"
+
+      - name: Lanelet2 bindings really import
+        # pip can install a wheel that then fails to load its shared objects.
+        # Without this the suite would just skip those tests and look green.
+        run: python -c "import lanelet2; print(lanelet2.__name__, 'ok')"
+
+      - name: Tests
+        run: pytest -q -rs
+
+      - name: CLI is importable and wired up
+        # Catches an import error or a broken argparse tree, which the unit
+        # tests would not: they import the library, never the entry point.
+        run: |
+          gmap2lanelet --help
+          gmap2lanelet run --help
+          gmap2lanelet street --help
+          gmap2lanelet batch --help
+
+      - name: Street modules import without the street extra
+        # `ultralytics` and `torch` are deliberately not installed in this job.
+        # The street modules must still import -- the detector is pulled in
+        # inside the function that uses it -- or someone who only wants the
+        # aerial pipeline gets an ImportError from a stage they never call.
+        run: |
+          python - <<'PY'
+          import importlib
+          for m in [
+              "gmap2lanelet.pipeline",
+              "gmap2lanelet.street.pipeline",
+              "gmap2lanelet.street.evaluate",
+              "gmap2lanelet.street.semantics.associate",
+              "gmap2lanelet.street.experiment",
+              "gmap2lanelet.viz.semantics",
+          ]:
+              importlib.import_module(m)
+          print("import graph clean without the street extra")
+          PY

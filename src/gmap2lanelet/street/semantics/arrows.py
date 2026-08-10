@@ -141,7 +141,7 @@ def merge_arrows(arrows: list[LaneArrow]) -> list[LaneArrow]:
         by_lane.setdefault(a.lane_id, []).append(a)
 
     out: list[LaneArrow] = []
-    for lane, group in by_lane.items():
+    for group in by_lane.values():
         group.sort(key=lambda a: -a.score)
         best = group[0]
         if len(group) > 1:

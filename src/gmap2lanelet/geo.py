@@ -48,7 +48,7 @@ class AOI:
         }
 
     @staticmethod
-    def from_dict(d: dict) -> "AOI":
+    def from_dict(d: dict) -> AOI:
         return AOI(d["name"], d["west"], d["south"], d["east"], d["north"])
 
 
@@ -62,7 +62,7 @@ class LocalFrame:
         self._my = _EARTH_R * math.pi / 180.0
 
     @staticmethod
-    def for_aoi(aoi: AOI) -> "LocalFrame":
+    def for_aoi(aoi: AOI) -> LocalFrame:
         lon0, lat0 = aoi.center
         return LocalFrame(lat0, lon0)
 

@@ -18,7 +18,7 @@ def validate_lanelet2(path: str | Path, lat0: float, lon0: float) -> dict:
     path = Path(path)
     out: dict = {"file": str(path), "available": False}
     try:
-        import lanelet2
+        import lanelet2  # noqa: F401  -- imported to probe availability
         from lanelet2.io import Origin, loadRobust
         from lanelet2.projection import UtmProjector
     except ImportError as exc:

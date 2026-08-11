@@ -13,20 +13,20 @@ import xml.etree.ElementTree as ET
 import numpy as np
 import pytest
 
-from gmap2lanelet.config import PipelineConfig
-from gmap2lanelet.export.lanelet2_osm import Lanelet2Writer
-from gmap2lanelet.geo import AOI, LocalFrame
-from gmap2lanelet.raster import GeoRaster
-from gmap2lanelet.street.semantics.arrows import find_arrows, merge_arrows
-from gmap2lanelet.street.semantics.associate import (
+from openmap2lanelet.config import PipelineConfig
+from openmap2lanelet.export.lanelet2_osm import Lanelet2Writer
+from openmap2lanelet.geo import AOI, LocalFrame
+from openmap2lanelet.raster import GeoRaster
+from openmap2lanelet.street.semantics.arrows import find_arrows, merge_arrows
+from openmap2lanelet.street.semantics.associate import (
     TrafficLightAssociator,
     associate,
     build_approaches,
     build_stop_lines,
 )
-from gmap2lanelet.street.semantics.stopline import detect_stop_line
-from gmap2lanelet.street.types import Landmark, LandmarkKind, SignalAspect
-from gmap2lanelet.types import (
+from openmap2lanelet.street.semantics.stopline import detect_stop_line
+from openmap2lanelet.street.types import Landmark, LandmarkKind, SignalAspect
+from openmap2lanelet.types import (
     Boundary,
     Intersection,
     Lane,

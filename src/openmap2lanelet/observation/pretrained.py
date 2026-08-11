@@ -1,6 +1,6 @@
 """Pretrained-segmentation observation backend.
 
-Implements the same :class:`~gmap2lanelet.observation.base.ObservationBackend`
+Implements the same :class:`~openmap2lanelet.observation.base.ObservationBackend`
 contract as the classical backend, so swapping it changes nothing downstream.
 
 Read this before using it

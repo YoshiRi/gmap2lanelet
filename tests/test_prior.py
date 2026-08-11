@@ -1,10 +1,10 @@
 import numpy as np
 
-from gmap2lanelet.geo import AOI, LocalFrame
-from gmap2lanelet.prior import osm_tags
-from gmap2lanelet.prior.road_graph import build_road_prior
-from gmap2lanelet.sources.base import PriorData, PriorWay
-from gmap2lanelet.types import Source
+from openmap2lanelet.geo import AOI, LocalFrame
+from openmap2lanelet.prior import osm_tags
+from openmap2lanelet.prior.road_graph import build_road_prior
+from openmap2lanelet.sources.base import PriorData, PriorWay
+from openmap2lanelet.types import Source
 
 
 def test_lane_count_prefers_tag_then_default():

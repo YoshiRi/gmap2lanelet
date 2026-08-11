@@ -1,20 +1,20 @@
 """Command line interface.
 
     # public SpaceNet tile (imagery + OSM-like prior, no credentials needed)
-    gmap2lanelet run --source spacenet --image-id 93 --out outputs/vegas93
+    openmap2lanelet run --source spacenet --image-id 93 --out outputs/vegas93
 
     # arbitrary place on Earth: OSM via Overpass + your own aerial tile service
-    gmap2lanelet run --source live \\
+    openmap2lanelet run --source live \\
         --bbox 139.7601 35.6801 139.7649 35.6841 \\
         --tiles "https://.../{z}/{y}/{x}" --tiles-attribution "..." \\
         --drive-on left --out outputs/tokyo
 
     # batch several AOIs and compare failure modes
-    gmap2lanelet batch --image-ids 93,162,48,10,100 --out outputs/batch
+    openmap2lanelet batch --image-ids 93,162,48,10,100 --out outputs/batch
 
     # street-level semantics: traffic lights, stop lines, lane arrows, and a
     # Lanelet2 map with regulatory elements, scored against a held-back HD map
-    gmap2lanelet street --log 20dd185d-b4eb-3024-a17a-b4e5d8b15b65 --city DTW \\
+    openmap2lanelet street --log 20dd185d-b4eb-3024-a17a-b4e5d8b15b65 --city DTW \\
         --out outputs/street_detroit
 """
 
@@ -29,7 +29,7 @@ from pathlib import Path
 from .config import PipelineConfig
 from .geo import AOI, LocalFrame
 
-log = logging.getLogger("gmap2lanelet")
+log = logging.getLogger("openmap2lanelet")
 
 
 def _add_common(p: argparse.ArgumentParser) -> None:
@@ -171,7 +171,7 @@ def _print_table(rows: list[dict]) -> None:
 
 
 def main(argv: list[str] | None = None) -> int:
-    ap = argparse.ArgumentParser(prog="gmap2lanelet", description=__doc__,
+    ap = argparse.ArgumentParser(prog="openmap2lanelet", description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
 

@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from gmap2lanelet.geo import (
+from openmap2lanelet.geo import (
     AOI,
     LocalFrame,
     hermite,
@@ -10,7 +10,7 @@ from gmap2lanelet.geo import (
     resample_polyline,
     simplify_polyline,
 )
-from gmap2lanelet.raster import GeoRaster
+from openmap2lanelet.raster import GeoRaster
 
 
 def test_local_frame_roundtrip():

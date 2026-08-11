@@ -10,9 +10,9 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from gmap2lanelet.street.geo.camera import Camera, Intrinsics, quat_to_rot, se3, se3_inv
-from gmap2lanelet.street.geo.ground import GroundSurface
-from gmap2lanelet.street.geo.triangulate import (
+from openmap2lanelet.street.geo.camera import Camera, Intrinsics, quat_to_rot, se3, se3_inv
+from openmap2lanelet.street.geo.ground import GroundSurface
+from openmap2lanelet.street.geo.triangulate import (
     closest_approach,
     perpendicular_distances,
     reprojection_errors,

@@ -1,4 +1,4 @@
-# gmap2lanelet
+# openmap2lanelet
 
 [![CI](https://github.com/YoshiRi/gmap2lanelet/actions/workflows/ci.yml/badge.svg)](https://github.com/YoshiRi/gmap2lanelet/actions/workflows/ci.yml)
 
@@ -14,6 +14,10 @@ The point of this PoC is **not** accuracy. It is to establish, with numbers,
 *what can be automated and what cannot* — and to make everything that cannot be
 automated visible, georeferenced and reviewable.
 
+The name is literal: every source this project touches (SpaceNet, OpenStreetMap,
+Argoverse 2, and whatever XYZ tile service you point it at) is openly licensed.
+No Google product is used or required anywhere in this repository.
+
 Give it a place, get back a Lanelet2 map candidate plus a list of the places a
 human has to look at.
 
@@ -21,20 +25,20 @@ human has to look at.
 pip install -e ".[lanelet2]"
 
 # a public SpaceNet tile: 0.27 m/px imagery + OSM-like road vectors, no credentials
-gmap2lanelet run --image-id 38 --out outputs/vegas38
+openmap2lanelet run --image-id 38 --out outputs/vegas38
 
 # anywhere on Earth: OSM via Overpass + an aerial tile service you are licensed to use
-gmap2lanelet run --source live \
+openmap2lanelet run --source live \
     --bbox 139.7601 35.6801 139.7649 35.6841 --drive-on left \
     --tiles "https://<your-imagery-host>/{z}/{y}/{x}" --tiles-attribution "..." \
     --out outputs/tokyo
 
 # compare failure modes across many AOIs
-gmap2lanelet batch --image-ids 93,162,48,10,100,151,89,38,124,160 --out outputs/batch
+openmap2lanelet batch --image-ids 93,162,48,10,100,151,89,38,124,160 --out outputs/batch
 
 # add the semantics that overhead imagery cannot see: traffic lights, the stop
 # lines they govern, the lanes behind them, and painted lane arrows
-gmap2lanelet street --log 20dd185d-b4eb-3024-a17a-b4e5d8b15b65 --city DTW \
+openmap2lanelet street --log 20dd185d-b4eb-3024-a17a-b4e5d8b15b65 --city DTW \
     --out outputs/street_detroit
 ```
 

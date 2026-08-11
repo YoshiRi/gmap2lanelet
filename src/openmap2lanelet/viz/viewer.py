@@ -156,7 +156,7 @@ def _heat(data: np.ndarray, rgb: tuple[int, int, int], thr: float = 0.5) -> np.n
 
 _TEMPLATE = """<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
-<title>gmap2lanelet - {title}</title>
+<title>openmap2lanelet - {title}</title>
 <style>
  :root {{ color-scheme: dark; }}
  * {{ box-sizing: border-box; }}
@@ -217,7 +217,7 @@ _TEMPLATE = """<!doctype html>
   <div id="hint">scroll = zoom &middot; drag = pan &middot; click an element for provenance</div>
  </div>
  <div id="side">
-  <h1>gmap2lanelet</h1>
+  <h1>openmap2lanelet</h1>
   <div class="muted">{title}</div>
   <h2>layers</h2>
   <label><input type="checkbox" id="l-img" checked> aerial imagery</label>

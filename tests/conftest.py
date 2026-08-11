@@ -10,9 +10,9 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from gmap2lanelet.geo import AOI, LocalFrame
-from gmap2lanelet.raster import GeoRaster
-from gmap2lanelet.sources.base import ImageryData, PriorData, PriorWay
+from openmap2lanelet.geo import AOI, LocalFrame
+from openmap2lanelet.raster import GeoRaster
+from openmap2lanelet.sources.base import ImageryData, PriorData, PriorWay
 
 GSD = 0.25
 

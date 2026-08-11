@@ -23,7 +23,7 @@ from .cache import post_form
 log = logging.getLogger(__name__)
 
 DEFAULT_ENDPOINT = "https://overpass-api.de/api/interpreter"
-USER_AGENT = "gmap2lanelet/0.1 (research PoC)"
+USER_AGENT = "openmap2lanelet/0.1 (research PoC)"
 
 # Road classes we treat as drivable.  Deliberately excludes footway/cycleway.
 DRIVABLE = (

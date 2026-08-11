@@ -13,14 +13,14 @@ import numpy as np
 import pytest
 from PIL import Image
 
-from gmap2lanelet.street.geo.camera import Camera, Intrinsics
-from gmap2lanelet.street.semantics.aspect import (
+from openmap2lanelet.street.geo.camera import Camera, Intrinsics
+from openmap2lanelet.street.semantics.aspect import (
     AspectResult,
     best_view,
     classify_aspects,
 )
-from gmap2lanelet.street.sources.base import StreetFrame
-from gmap2lanelet.street.types import Detection, Landmark, LandmarkKind, SignalAspect
+from openmap2lanelet.street.sources.base import StreetFrame
+from openmap2lanelet.street.types import Detection, Landmark, LandmarkKind, SignalAspect
 
 
 def _camera(name: str = "c0") -> Camera:

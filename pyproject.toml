@@ -3,7 +3,7 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "gmap2lanelet"
+name = "openmap2lanelet"
 version = "0.1.0"
 description = "Semi-automatic lane-level vector map generation from public map + aerial imagery, exported as Lanelet2"
 readme = "README.md"
@@ -30,12 +30,12 @@ lanelet2 = ["lanelet2>=1.2"]
 torch = ["torch>=2.0", "segmentation-models-pytorch>=0.3"]
 # Street-level stage: object detection in posed frames, and the rasterisation
 # used by the inverse-perspective mosaic.  The geometry, association, export and
-# evaluation code needs neither -- only `gmap2lanelet street` does.
+# evaluation code needs neither -- only `openmap2lanelet street` does.
 street = ["ultralytics>=8.3", "opencv-python>=4.8"]
 dev = ["pytest>=7.4", "ruff>=0.6"]
 
 [project.scripts]
-gmap2lanelet = "gmap2lanelet.cli:main"
+openmap2lanelet = "openmap2lanelet.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
@@ -64,4 +64,4 @@ ignore = [
 [tool.ruff.lint.per-file-ignores]
 # The viewer embeds JavaScript and CSS in an f-string; wrapping those lines to
 # 100 columns would break the thing it is trying to keep readable.
-"src/gmap2lanelet/viz/viewer.py" = ["E501"]
+"src/openmap2lanelet/viz/viewer.py" = ["E501"]

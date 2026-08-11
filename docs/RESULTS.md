@@ -18,7 +18,7 @@ brief asks.
 Reproduce with:
 
 ```bash
-gmap2lanelet batch --image-ids 93,162,48,10,100,151,89,38,124,160 --out outputs/batch
+openmap2lanelet batch --image-ids 93,162,48,10,100,151,89,38,124,160 --out outputs/batch
 ```
 
 ![what the observation stage sees](figures/evidence_img93.jpg)

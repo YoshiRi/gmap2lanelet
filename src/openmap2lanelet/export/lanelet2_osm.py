@@ -58,7 +58,7 @@ class Lanelet2Writer:
         self._next = start_id
         self._nodes: dict[tuple[int, int, int], int] = {}
         self._cache: dict[tuple[str, str], int] = {}
-        self.root = ET.Element("osm", {"version": "0.6", "generator": "gmap2lanelet"})
+        self.root = ET.Element("osm", {"version": "0.6", "generator": "openmap2lanelet"})
         self.counts = {"nodes": 0, "ways": 0, "lanelets": 0,
                        "regulatory_elements": 0, "traffic_lights": 0, "stop_lines": 0}
 

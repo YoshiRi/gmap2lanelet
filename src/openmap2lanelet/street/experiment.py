@@ -6,7 +6,7 @@ The design of the experiment matters as much as the code:
   the lane counts and turn tags stripped) and the log's posed camera imagery;
 * the **held-back truth** is the log's full HD map -- lane-level geometry,
   carriageway membership and junction connectivity -- which the pipeline never
-  sees and which is opened only by :mod:`gmap2lanelet.street.evaluate`.
+  sees and which is opened only by :mod:`openmap2lanelet.street.evaluate`.
 
 That split is what makes the numbers mean anything.  It also means the run is
 reproducible from public data alone: the log, its map and the detector weights

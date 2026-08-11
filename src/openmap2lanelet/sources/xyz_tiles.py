@@ -54,7 +54,7 @@ class XYZTileSource:
     name = "xyz"
 
     def __init__(self, url_template: str, attribution: str, zoom: int = 19,
-                 user_agent: str = "gmap2lanelet/0.1 (research PoC)",
+                 user_agent: str = "openmap2lanelet/0.1 (research PoC)",
                  use_cache: bool = True, max_tiles: int = 400):
         self.url_template = url_template
         self.attribution = attribution

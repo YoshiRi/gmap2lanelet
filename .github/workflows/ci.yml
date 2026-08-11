@@ -71,10 +71,10 @@ jobs:
         # Catches an import error or a broken argparse tree, which the unit
         # tests would not: they import the library, never the entry point.
         run: |
-          gmap2lanelet --help
-          gmap2lanelet run --help
-          gmap2lanelet street --help
-          gmap2lanelet batch --help
+          openmap2lanelet --help
+          openmap2lanelet run --help
+          openmap2lanelet street --help
+          openmap2lanelet batch --help
 
       - name: Street modules import without the street extra
         # `ultralytics` and `torch` are deliberately not installed in this job.
@@ -85,12 +85,12 @@ jobs:
           python - <<'PY'
           import importlib
           for m in [
-              "gmap2lanelet.pipeline",
-              "gmap2lanelet.street.pipeline",
-              "gmap2lanelet.street.evaluate",
-              "gmap2lanelet.street.semantics.associate",
-              "gmap2lanelet.street.experiment",
-              "gmap2lanelet.viz.semantics",
+              "openmap2lanelet.pipeline",
+              "openmap2lanelet.street.pipeline",
+              "openmap2lanelet.street.evaluate",
+              "openmap2lanelet.street.semantics.associate",
+              "openmap2lanelet.street.experiment",
+              "openmap2lanelet.viz.semantics",
           ]:
               importlib.import_module(m)
           print("import graph clean without the street extra")

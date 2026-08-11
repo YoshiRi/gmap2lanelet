@@ -27,7 +27,7 @@ Street imagery never replaces the lane map. It is evidence *about* it.
 | runtime | 142 s end-to-end on 4 cores (68 s detection, 62 s lane graph, 12 s figures) |
 
 ```bash
-gmap2lanelet street --log 20dd185d-b4eb-3024-a17a-b4e5d8b15b65 --city DTW \
+openmap2lanelet street --log 20dd185d-b4eb-3024-a17a-b4e5d8b15b65 --city DTW \
     --out outputs/street_detroit
 ```
 
@@ -38,7 +38,7 @@ release assets.
 ### Why this experiment is honest
 
 The pipeline is shown only the degraded prior and the camera images. The
-lane-level map is opened exclusively by `gmap2lanelet.street.evaluate`, after the
+lane-level map is opened exclusively by `openmap2lanelet.street.evaluate`, after the
 run. That is what makes the geometry and turn-semantics numbers below mean
 something — and it is also why the traffic-light numbers are *not* an accuracy
 figure (see [below](#traffic-lights-what-cannot-be-scored)).
@@ -307,14 +307,14 @@ to check them against are not.
 
 ```bash
 # the run in this document
-gmap2lanelet street --out outputs/street_detroit
+openmap2lanelet street --out outputs/street_detroit
 
 # how much of the residual lane-count error is the prior's?
-gmap2lanelet street --lanes-tag true  --out outputs/street_true
-gmap2lanelet street --lanes-tag class --out outputs/street_class
+openmap2lanelet street --lanes-tag true  --out outputs/street_true
+openmap2lanelet street --lanes-tag class --out outputs/street_class
 
 # a different city / junction geometry
-gmap2lanelet street --log <log-id> --city ATX --out outputs/street_austin
+openmap2lanelet street --log <log-id> --city ATX --out outputs/street_austin
 ```
 
 Outputs:

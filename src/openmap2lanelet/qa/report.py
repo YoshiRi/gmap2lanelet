@@ -14,7 +14,7 @@ def write_report(result, path: str | Path) -> Path:
     st = result.failures.stats
     L: list[str] = []
 
-    L.append(f"# gmap2lanelet run report - {result.aoi.name}\n")
+    L.append(f"# openmap2lanelet run report - {result.aoi.name}\n")
     L.append(f"AOI `{result.aoi.west:.6f}, {result.aoi.south:.6f}, "
              f"{result.aoi.east:.6f}, {result.aoi.north:.6f}` (WGS84)\n")
 

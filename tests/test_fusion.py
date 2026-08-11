@@ -4,14 +4,14 @@ import numpy as np
 import pytest
 from conftest import build_scene
 
-from gmap2lanelet.config import PipelineConfig
-from gmap2lanelet.fusion.builder import build_lane_graph
-from gmap2lanelet.fusion.corridor import extract_corridors
-from gmap2lanelet.fusion.lanes import solve_lanes
-from gmap2lanelet.fusion.profile import build_profile
-from gmap2lanelet.observation.classical import ClassicalBackend
-from gmap2lanelet.prior.road_graph import build_road_prior
-from gmap2lanelet.types import MarkingType, Source
+from openmap2lanelet.config import PipelineConfig
+from openmap2lanelet.fusion.builder import build_lane_graph
+from openmap2lanelet.fusion.corridor import extract_corridors
+from openmap2lanelet.fusion.lanes import solve_lanes
+from openmap2lanelet.fusion.profile import build_profile
+from openmap2lanelet.observation.classical import ClassicalBackend
+from openmap2lanelet.prior.road_graph import build_road_prior
+from openmap2lanelet.types import MarkingType, Source
 
 
 @pytest.fixture(scope="module")

@@ -35,7 +35,7 @@ class ObservationBackend(Protocol):
     name: str
 
     def run(self, imagery: GeoRaster, prior) -> Evidence:
-        """``prior`` is a :class:`~gmap2lanelet.prior.road_graph.RoadPrior`.
+        """``prior`` is a :class:`~openmap2lanelet.prior.road_graph.RoadPrior`.
 
         Backends may use it for weak supervision (sampling road colour along
         centrelines) but must not use it to *decide* where roads are.

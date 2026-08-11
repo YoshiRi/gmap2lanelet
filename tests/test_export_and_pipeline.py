@@ -6,13 +6,13 @@ import xml.etree.ElementTree as ET
 import pytest
 from conftest import build_cross_scene
 
-from gmap2lanelet.config import PipelineConfig
-from gmap2lanelet.export.lanelet2_osm import write_lanelet2
-from gmap2lanelet.fusion.builder import build_lane_graph
-from gmap2lanelet.observation.classical import ClassicalBackend
-from gmap2lanelet.pipeline import run
-from gmap2lanelet.prior.road_graph import build_road_prior
-from gmap2lanelet.qa.validate import validate_lanelet2
+from openmap2lanelet.config import PipelineConfig
+from openmap2lanelet.export.lanelet2_osm import write_lanelet2
+from openmap2lanelet.fusion.builder import build_lane_graph
+from openmap2lanelet.observation.classical import ClassicalBackend
+from openmap2lanelet.pipeline import run
+from openmap2lanelet.prior.road_graph import build_road_prior
+from openmap2lanelet.qa.validate import validate_lanelet2
 
 # Only the two tests that *load* the map need the official bindings.  Gating the
 # whole module on them would silently drop the export-structure and end-to-end

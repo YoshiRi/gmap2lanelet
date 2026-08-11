@@ -262,6 +262,9 @@ class Lanelet2Writer:
         }
         if lm.height_above_ground is not None:
             tags["gm2ll:height_above_ground_m"] = f"{lm.height_above_ground:.2f}"
+        if lm.aspect is not None:
+            tags["gm2ll:aspect"] = lm.aspect.value
+            tags["gm2ll:aspect_confidence"] = f"{lm.aspect_confidence:.2f}"
         if lm.flags:
             tags["gm2ll:flags"] = ";".join(sorted(set(lm.flags)))
         wid = self._way(pts, tags, ele=self.cfg.elevation + float(p[2] - self._datum(lm)))

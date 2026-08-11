@@ -23,6 +23,23 @@ class LandmarkKind(str, Enum):
     TRAFFIC_SIGN = "traffic_sign"
 
 
+class SignalAspect(str, Enum):
+    """The lens layout a traffic-light head displays.
+
+    Describes hardware, not a permitted manoeuvre -- kept distinct from the
+    "left"/"right"/"through"/"straight" vocabularies used elsewhere for
+    painted-arrow manoeuvres (``arrows.py``, ``Lane.turn_direction``), since
+    ``BALL``/``PEDESTRIAN`` have no analogue there.
+    """
+
+    BALL = "ball"
+    ARROW_LEFT = "arrow_left"
+    ARROW_RIGHT = "arrow_right"
+    ARROW_STRAIGHT = "arrow_straight"
+    PEDESTRIAN = "pedestrian"
+    UNKNOWN = "unknown"
+
+
 @dataclass
 class Detection:
     """One 2-D detection in one frame."""
@@ -70,6 +87,8 @@ class Landmark:
     confidence: float = 0.0
     provenance: Provenance = field(default_factory=lambda: Provenance(Source.IMAGE))
     flags: list[str] = field(default_factory=list)
+    aspect: SignalAspect | None = None
+    aspect_confidence: float = 0.0
 
     def to_dict(self) -> dict:
         return {
@@ -85,6 +104,8 @@ class Landmark:
             "confidence": round(self.confidence, 3),
             "provenance": self.provenance.to_dict(),
             "flags": self.flags,
+            "aspect": None if self.aspect is None else self.aspect.value,
+            "aspect_confidence": round(self.aspect_confidence, 3),
             "detections": [d.to_dict() for d in self.detections],
         }
 

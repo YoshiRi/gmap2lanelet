@@ -28,6 +28,7 @@ from ..pipeline import run as run_base
 from ..sources.base import ImageryData
 from . import evaluate as ev
 from . import pipeline as spipe
+from .semantics.aspect import AspectClassifier
 from .sources import av2_map
 from .sources.av2 import AV2LogSource
 
@@ -39,7 +40,8 @@ def run_av2_experiment(log_id: str, city: str, *, out_dir: str | Path,
                        bev_resolution: float = 0.05, lanes_tag: str = "none",
                        weights: str = "yolov8m.pt", imgsz: int = 1280,
                        conf: float = 0.25, cfg: PipelineConfig | None = None,
-                       make_visuals: bool = True) -> dict:
+                       make_visuals: bool = True,
+                       aspect_classifier: AspectClassifier | None = None) -> dict:
     out = Path(out_dir)
     out.mkdir(parents=True, exist_ok=True)
     cfg = cfg or PipelineConfig()
@@ -83,6 +85,15 @@ def run_av2_experiment(log_id: str, city: str, *, out_dir: str | Path,
     landmarks = _landmarks(seq, out, weights=weights, imgsz=imgsz, conf=conf)
     t["detect_and_triangulate"] = time.time() - t0
 
+    aspect_stats: dict = {}
+    if aspect_classifier is not None:
+        from .semantics.aspect import classify_aspects
+
+        t0 = time.time()
+        aspect_stats = classify_aspects(landmarks, seq.frames, aspect_classifier,
+                                        cache=out / "cache" / "aspects.json")
+        t["aspect_classification"] = time.time() - t0
+
     street = spipe.run_semantics(
         base.graph, frame, landmarks, marking=base.evidence.marking, cfg=cfg,
         out_dir=out, imagery=bev if make_visuals else None,
@@ -101,6 +112,7 @@ def run_av2_experiment(log_id: str, city: str, *, out_dir: str | Path,
                    "attribution": [prior_data.attribution, seq.attribution]},
         "lane_graph": base.graph.stats(),
         "semantics": street.semantics.stats(),
+        "aspect_classification": aspect_stats,
         "lanelet2": street.validation,
         "evaluation": scores,
         "review": {"phase1": base.failures.stats, "phase2": street.detail.get("review")},

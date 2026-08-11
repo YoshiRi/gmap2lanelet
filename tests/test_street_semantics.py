@@ -25,7 +25,7 @@ from gmap2lanelet.street.semantics.associate import (
     build_stop_lines,
 )
 from gmap2lanelet.street.semantics.stopline import detect_stop_line
-from gmap2lanelet.street.types import Landmark, LandmarkKind
+from gmap2lanelet.street.types import Landmark, LandmarkKind, SignalAspect
 from gmap2lanelet.types import (
     Boundary,
     Intersection,
@@ -302,6 +302,24 @@ def test_regulatory_elements_reach_the_exported_map(junction, tmp_path):
     for ll in governed:
         tags = {t.get("k") for t in ll.findall("tag")}
         assert "gm2ll:confidence" in tags
+
+
+def test_traffic_light_aspect_is_exported_additively(junction, tmp_path):
+    light = _light("t0", "E", ahead=20.0)
+    light.aspect = SignalAspect.ARROW_LEFT
+    light.aspect_confidence = 0.8
+    layer = associate(junction, [light], marking=_painted(bar_at=2.0))
+
+    w = Lanelet2Writer(junction, PipelineConfig(), semantics=layer)
+    root = ET.parse(w.write(tmp_path / "map.osm")).getroot()
+
+    tl_way = next(wy for wy in root.findall("way")
+                  if any(t.get("k") == "type" and t.get("v") == "traffic_light"
+                         for t in wy.findall("tag")))
+    tags = {t.get("k"): t.get("v") for t in tl_way.findall("tag")}
+    assert tags["subtype"] == "red_yellow_green"
+    assert tags["gm2ll:aspect"] == "arrow_left"
+    assert tags["gm2ll:aspect_confidence"] == "0.80"
 
 
 def test_a_map_without_semantics_is_unchanged(junction, tmp_path):

@@ -1,6 +1,6 @@
 # openmap2lanelet
 
-[![CI](https://github.com/YoshiRi/gmap2lanelet/actions/workflows/ci.yml/badge.svg)](https://github.com/YoshiRi/gmap2lanelet/actions/workflows/ci.yml)
+[![CI](https://github.com/YoshiRi/openmap2lanelet/actions/workflows/ci.yml/badge.svg)](https://github.com/YoshiRi/openmap2lanelet/actions/workflows/ci.yml)
 
 **Lane-level vector maps from public map data + public aerial imagery, exported as Lanelet2.**
 

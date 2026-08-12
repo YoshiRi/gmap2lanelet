@@ -29,7 +29,7 @@ from pathlib import Path
 import numpy as np
 
 from ...geo import AOI, LocalFrame
-from ..geo.camera import Camera, Intrinsics, quat_to_rot, se3
+from ..geo.camera import Camera, Intrinsics, pose_to_local_frame, quat_to_rot, se3
 from ..geo.ground import GroundSurface
 from .base import StreetFrame, StreetSequence
 
@@ -259,21 +259,10 @@ class AV2LogSource:
         """Re-express a pose from the AV2 city frame in the local metric frame.
 
         The two frames differ by a translation and a small rotation (UTM grid
-        convergence plus the equirectangular tangent), so the rotation is
-        recovered numerically from how a unit triad maps across, rather than
-        assumed to be identity.
+        convergence plus the equirectangular tangent) -- see
+        ``pose_to_local_frame`` for how the rotation is recovered.
         """
-        o = city_T_cam[:3, 3]
-        probe = np.array([o, o + [1, 0, 0], o + [0, 1, 0], o + [0, 0, 1]], dtype=float)
-        loc = self.georef.city_to_local(probe, frame)
-        basis = np.column_stack([loc[1] - loc[0], loc[2] - loc[0], loc[3] - loc[0]])
-        # orthonormalise: the mapping is a similarity, we want its rotation part
-        u, _, vt = np.linalg.svd(basis)
-        r_local_city = u @ vt
-        out = np.eye(4)
-        out[:3, :3] = r_local_city @ city_T_cam[:3, :3]
-        out[:3, 3] = loc[0]
-        return out
+        return pose_to_local_frame(city_T_cam, lambda pts: self.georef.city_to_local(pts, frame))
 
 
 def find_logs(split: str = "val", limit: int = 40) -> list[tuple[str, str]]:

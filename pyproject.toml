@@ -32,6 +32,10 @@ torch = ["torch>=2.0", "segmentation-models-pytorch>=0.3"]
 # used by the inverse-perspective mosaic.  The geometry, association, export and
 # evaluation code needs neither -- only `openmap2lanelet street` does.
 street = ["ultralytics>=8.3", "opencv-python>=4.8"]
+# Rosbag-based map validation (street/sources/rosbag.py, qa/rosbag_validate.py).
+# Both are pure Python; `rosbags` reads a ROS2 bag's own embedded message
+# definitions, so no ROS installation is required.
+rosbag = ["rosbags>=0.9", "mgrs>=1.4"]
 dev = ["pytest>=7.4", "ruff>=0.6"]
 
 [project.scripts]

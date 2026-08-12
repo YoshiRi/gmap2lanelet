@@ -10,6 +10,7 @@ Conventions
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
 
 import numpy as np
@@ -131,6 +132,30 @@ class Camera:
         d = (self.world_T_cam[:3, :3] @ d.T).T
         n = np.linalg.norm(d, axis=1, keepdims=True)
         return d / np.maximum(n, 1e-12)
+
+
+def pose_to_local_frame(pose_T: np.ndarray,
+                        to_local: Callable[[np.ndarray], np.ndarray]) -> np.ndarray:
+    """Reproject a posed transform from an external frame into the local one.
+
+    ``to_local`` maps (N, 3) points from the pose's source frame to (N, 3)
+    points in the pipeline's local metric frame. The two frames generally
+    differ by a translation and a small rotation (grid convergence, a
+    tangent-plane offset, ...), so the rotation is recovered numerically by
+    probing how a unit triad at the pose's origin maps across, rather than
+    assumed to be identity.
+    """
+    o = pose_T[:3, 3]
+    probe = np.array([o, o + [1, 0, 0], o + [0, 1, 0], o + [0, 0, 1]], dtype=float)
+    loc = np.atleast_2d(to_local(probe))
+    basis = np.column_stack([loc[1] - loc[0], loc[2] - loc[0], loc[3] - loc[0]])
+    # orthonormalise: the mapping is a similarity, we want its rotation part
+    u, _, vt = np.linalg.svd(basis)
+    r_local = u @ vt
+    out = np.eye(4)
+    out[:3, :3] = r_local @ pose_T[:3, :3]
+    out[:3, 3] = loc[0]
+    return out
 
 
 def look_direction_deg(a: np.ndarray, b: np.ndarray) -> float:
